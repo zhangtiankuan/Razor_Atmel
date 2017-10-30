@@ -136,7 +136,93 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-
+  static bool bstatus1=TRUE;
+  static bool bstatus2=TRUE;
+  static u8 au8pinnum1[10];
+  static u8 au8pinnum2[10];
+  static u8 u8index1=0;
+  static u8 u8index2=0;
+  static u8 u8index3=0;
+  if(bstatus1)
+  {
+    if(IsButtonHeld(BUTTON3,1000))
+    {
+      LedBlink(RED,LED_1HZ);
+      LedBlink(GREEN,LED_1HZ);
+      if(WasButtonPressed(BUTTON0))
+      {
+        ButtonAcknowledge(BUTTON0);
+        au8pinnum1[u8index1]=1;
+        u8index1++;
+      }
+      if(WasButtonPressed(BUTTON1))
+      {
+        ButtonAcknowledge(BUTTON1);
+        au8pinnum1[u8index1]=2;
+        u8index1++;
+      }
+      if(WasButtonPressed(BUTTON2))
+      {
+        ButtonAcknowledge(BUTTON2);
+        au8pinnum1[u8index1]=3;
+        u8index1++;
+      }
+      if(WasButtonPressed(BUTTON3))
+      {
+        ButtonAcknowledge(BUTTON3);
+        bstatus1=FALSE; 
+        LedOn(RED);
+        LedOff(GREEN);
+      }    
+    }
+  }
+  
+  else
+  {  
+    if(WasButtonPressed(BUTTON0))
+    {
+      ButtonAcknowledge(BUTTON0);
+      au8pinnum2[u8index2]=1;
+      u8index2++;
+    }
+    if(WasButtonPressed(BUTTON1))
+    {
+      ButtonAcknowledge(BUTTON1);
+      au8pinnum2[u8index2]=2;
+      u8index2++;
+    }
+    if(WasButtonPressed(BUTTON2))
+    {
+      ButtonAcknowledge(BUTTON2);
+      au8pinnum2[u8index2]=3;
+      u8index2++;
+    }
+    if(WasButtonPressed(BUTTON3))
+    {
+      ButtonAcknowledge(BUTTON3);
+      for(u8index3=0;u8index3<sizeof(au8pinnum1);u8index3++)
+      {
+        if(au8pinnum1[u8index3]==au8pinnum2[u8index3])
+        {
+          
+        }
+        else
+        {
+          break;
+        }
+      }
+      if(u8index3==sizeof(au8pinnum1))
+      {
+        LedBlink(GREEN,LED_1HZ);
+        LedOff(RED);
+      }
+      else
+      {
+        LedBlink(RED,LED_1HZ);
+      }
+      bstatus1=FALSE;
+    }
+  } 
 } /* end UserApp1SM_Idle() */
     
 
