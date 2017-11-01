@@ -87,7 +87,14 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+ LedOff(WHITE);
+ LedOff(PURPLE);
+ LedOff(BLUE);
+ LedOff(CYAN);
+ LedOff(GREEN);
+ LedOff(YELLOW);
+ LedOff(ORANGE);
+ LedOff(RED);
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -136,49 +143,34 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-  static bool bstatus1=TRUE;
-  static bool bstatus2=TRUE;
-  static u8 au8pinnum1[10];
+  static bool bunlocking=FALSE;
+  static bool bcreatpassword=FALSE;
+  static u8 au8pinnum1[10]={1,2,3,1,2,3};
   static u8 au8pinnum2[10];
+  static u8 u8index=0;
   static u8 u8index1=0;
   static u8 u8index2=0;
   static u8 u8index3=0;
-  if(bstatus1)
+  static u8 u8mode=0;
+  
+  if(WasButtonPressed(BUTTON3))
   {
-    if(IsButtonHeld(BUTTON3,1000))
-    {
-      LedBlink(RED,LED_1HZ);
-      LedBlink(GREEN,LED_1HZ);
-      if(WasButtonPressed(BUTTON0))
-      {
-        ButtonAcknowledge(BUTTON0);
-        au8pinnum1[u8index1]=1;
-        u8index1++;
-      }
-      if(WasButtonPressed(BUTTON1))
-      {
-        ButtonAcknowledge(BUTTON1);
-        au8pinnum1[u8index1]=2;
-        u8index1++;
-      }
-      if(WasButtonPressed(BUTTON2))
-      {
-        ButtonAcknowledge(BUTTON2);
-        au8pinnum1[u8index1]=3;
-        u8index1++;
-      }
-      if(WasButtonPressed(BUTTON3))
-      {
-        ButtonAcknowledge(BUTTON3);
-        bstatus1=FALSE; 
-        LedOn(RED);
-        LedOff(GREEN);
-      }    
-    }
+    ButtonAcknowledge(BUTTON3);
+    ButtonAcknowledge(BUTTON2);
+    ButtonAcknowledge(BUTTON1);
+    ButtonAcknowledge(BUTTON0);
+    bunlocking=FALSE; 
+    bcreatpassword=FALSE;
+    u8mode++;
+    LedOff(GREEN);
+    LedOff(RED);
+    u8index2=0; 
   }
   
-  else
-  {  
+  if(u8mode==1)
+  {
+    LedOn(RED);
+    
     if(WasButtonPressed(BUTTON0))
     {
       ButtonAcknowledge(BUTTON0);
@@ -197,33 +189,82 @@ static void UserApp1SM_Idle(void)
       au8pinnum2[u8index2]=3;
       u8index2++;
     }
-    if(WasButtonPressed(BUTTON3))
+  }
+  
+  if(u8mode==2)
+  {
+    for(u8index3=0;u8index3<sizeof(au8pinnum1);u8index3++)
     {
-      ButtonAcknowledge(BUTTON3);
-      for(u8index3=0;u8index3<sizeof(au8pinnum1);u8index3++)
+      if(au8pinnum1[u8index3]==au8pinnum2[u8index3])
       {
-        if(au8pinnum1[u8index3]==au8pinnum2[u8index3])
-        {
           
-        }
-        else
-        {
-          break;
-        }
-      }
-      if(u8index3==sizeof(au8pinnum1))
-      {
-        LedBlink(GREEN,LED_1HZ);
-        LedOff(RED);
       }
       else
       {
-        LedBlink(RED,LED_1HZ);
+        break;
       }
-      bstatus1=FALSE;
     }
-  } 
-} /* end UserApp1SM_Idle() */
+    
+    if(u8index3==sizeof(au8pinnum1))
+    {
+      LedBlink(GREEN,LED_1HZ);
+      bunlocking=TRUE;
+    }
+    else
+    {
+      LedBlink(RED,LED_1HZ);
+    }
+    u8mode=0;
+    
+    for(u8index=0;u8index<10;u8index++)
+    {
+      au8pinnum2[u8index]=0;
+    }
+  }
+  
+  if(bunlocking)
+  {     
+    if(IsButtonHeld(BUTTON0,1000))
+    {
+      u8index1=0;
+      ButtonAcknowledge(BUTTON0);
+      LedOff(GREEN);
+      LedOff(RED);
+      LedBlink(GREEN,LED_1HZ);
+      LedBlink(RED,LED_1HZ);
+      bcreatpassword=TRUE;     
+      for(u8index=0;u8index<10;u8index++)
+      {
+        au8pinnum1[u8index]=0;
+      }
+        
+    }
+      
+    if(bcreatpassword)
+    {
+      if(WasButtonPressed(BUTTON0))
+      {
+        ButtonAcknowledge(BUTTON0);
+        au8pinnum1[u8index1]=1;
+        u8index1++;
+      }
+      if(WasButtonPressed(BUTTON1))
+      {
+        ButtonAcknowledge(BUTTON1);
+        au8pinnum1[u8index1]=2;
+        u8index1++;
+      }
+      if(WasButtonPressed(BUTTON2))
+      {
+        ButtonAcknowledge(BUTTON2);
+        au8pinnum1[u8index1]=3;
+        u8index1++;
+      }
+      u8mode=0;
+    }
+  }
+}
+ /* end UserApp1SM_Idle() */
     
 
 /*-------------------------------------------------------------------------------------------------------------------*/
