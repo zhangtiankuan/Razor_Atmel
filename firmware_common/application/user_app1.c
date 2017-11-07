@@ -140,8 +140,9 @@ static void UserApp1SM_Idle(void)
   extern u8 G_u8DebugScanfCharCount;
   static u8 u8NumCharsMessage1[100];
   static u8 u8NumCharsMessage2[100];
-  static u8 u8String1[]="*****";
-  static u8 u8String2[]="**";
+  static u8 u8String1[]="***";
+  static u8 u8String2[]="****";
+  static u8 u8String3[]="*";
   static u8 u8counter = 0;
   static u8 u8index = 0;
   static u8 u8index1;
@@ -150,21 +151,36 @@ static void UserApp1SM_Idle(void)
     DebugScanf(u8NumCharsMessage1);
     u8NumCharsMessage2[u8index]=u8NumCharsMessage1[0];
     u8index++;
-    u8index1=u8index-5;
-    if((u8NumCharsMessage2[u8index1]=='z')&(u8NumCharsMessage2[u8index1+1]=='h')
-      &(u8NumCharsMessage2[u8index1+2]=='a')&(u8NumCharsMessage2[u8index1+3]=='n')
-      &(u8NumCharsMessage2[u8index1+4]=='g'))
+    u8index1=u8index-3;
+    if((u8NumCharsMessage2[u8index1]=='z')&(u8NumCharsMessage2[u8index1+1]=='t')
+      &(u8NumCharsMessage2[u8index1+2]=='k'))
+     
     {
       u8counter++; 
-      DebugLineFeed();
-      DebugPrintf(u8String1);
-      DebugLineFeed();
-      DebugPrintf(u8String2);
-      DebugPrintNumber(u8counter);
-      DebugPrintf(u8String2);
-      DebugLineFeed();
-      DebugPrintf(u8String1);
-      DebugLineFeed();
+      if(u8counter<10)
+      {
+        DebugLineFeed();
+        DebugPrintf(u8String1);
+        DebugLineFeed();
+        DebugPrintf(u8String3);
+        DebugPrintNumber(u8counter);
+        DebugPrintf(u8String3);
+        DebugLineFeed();
+        DebugPrintf(u8String1);
+        DebugLineFeed();
+      }
+      if((u8counter>=10)&(u8counter<100))
+      {
+        DebugLineFeed();
+        DebugPrintf(u8String2);
+        DebugLineFeed();
+        DebugPrintf(u8String3);
+        DebugPrintNumber(u8counter);
+        DebugPrintf(u8String3);
+        DebugLineFeed();
+        DebugPrintf(u8String2);
+        DebugLineFeed();
+      }
     }
   } 
 }/* end UserApp1SM_Idle() */
