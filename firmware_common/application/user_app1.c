@@ -138,50 +138,40 @@ static void UserApp1SM_Idle(void)
 {
   extern u8 G_au8DebugScanfBuffer[];
   extern u8 G_u8DebugScanfCharCount;
-  static u8 u8NumCharsMessage1[100];
-  static u8 u8NumCharsMessage2[100];
-  static u8 u8String1[]="***";
-  static u8 u8String2[]="****";
-  static u8 u8String3[]="*";
+  static u8 u8NumCharsMessage1[100];//store a single letter
+  static u8 u8NumCharsMessage2[100];//store a string of letters
+  static u8 u8String[]="*";
+  static u8 u8number = 0;//record the number of the name appears
   static u8 u8counter = 0;
+  static u8 u8figure = 0;//judge the figure of number  
   static u8 u8index = 0;
-  static u8 u8index1;
   if(G_u8DebugScanfCharCount!=0)
   {
     DebugScanf(u8NumCharsMessage1);
     u8NumCharsMessage2[u8index]=u8NumCharsMessage1[0];
     u8index++;
-    u8index1=u8index-3;
-    if((u8NumCharsMessage2[u8index1]=='z')&(u8NumCharsMessage2[u8index1+1]=='t')
-      &(u8NumCharsMessage2[u8index1+2]=='k'))
+    if((u8NumCharsMessage2[u8index-3]=='z')&(u8NumCharsMessage2[u8index-2]=='t')
+      &(u8NumCharsMessage2[u8index-1]=='k'))
      
     {
-      u8counter++; 
-      if(u8counter<10)
+      u8number++; 
+      u8figure=u8number/10+1;
+      DebugLineFeed();
+      for(u8counter=0;u8counter<u8figure+2;u8counter++)
       {
-        DebugLineFeed();
-        DebugPrintf(u8String1);
-        DebugLineFeed();
-        DebugPrintf(u8String3);
-        DebugPrintNumber(u8counter);
-        DebugPrintf(u8String3);
-        DebugLineFeed();
-        DebugPrintf(u8String1);
-        DebugLineFeed();
+        DebugPrintf(u8String);
       }
-      if((u8counter>=10)&(u8counter<100))
+      DebugLineFeed();
+      DebugPrintf(u8String);
+      DebugPrintNumber(u8number);
+      DebugPrintf(u8String);
+      DebugLineFeed();
+      for(u8counter=0;u8counter<u8figure+2;u8counter++)
       {
-        DebugLineFeed();
-        DebugPrintf(u8String2);
-        DebugLineFeed();
-        DebugPrintf(u8String3);
-        DebugPrintNumber(u8counter);
-        DebugPrintf(u8String3);
-        DebugLineFeed();
-        DebugPrintf(u8String2);
-        DebugLineFeed();
+        DebugPrintf(u8String);
       }
-    }
+      DebugLineFeed();
+    } 
   } 
 }/* end UserApp1SM_Idle() */
     
