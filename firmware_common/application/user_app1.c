@@ -87,7 +87,13 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+   LedOff(WHITE);
+   LedOff(PURPLE);
+   LedOff(BLUE);  
+   LedOff(RED);
+   LCDCommand(LCD_CLEAR_CMD);
+   LCDMessage(LINE1_START_ADDR,"Please Press:");
+   LCDMessage(LINE2_START_ADDR,"B0   B1   B2");
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -136,7 +142,219 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-
+  extern u8 G_au8DebugScanfBuffer[];
+  extern u8 G_u8DebugScanfCharCount;
+  static u8 u8mode = 0; 
+  static u8 u8counter1 = 0; 
+  static u8 u8counter2 = 4;
+  static u8 u16Message1[100];
+  static u8 u16Message2[100];
+  static u8 u16Message3[100];
+  static u8 u8index1 = 0;
+  static u8 u8index2 = 0;
+  static u8 u8index3 = 0;  
+  static bool bflag1=TRUE;
+  static bool bflag2=TRUE; 
+  static bool bflag3=TRUE; 
+  static u8 UserApp_CursorPosition;
+  
+  //***************first mode---name LCD
+  if(WasButtonPressed(BUTTON0)&(bflag1==TRUE))
+  {
+    ButtonAcknowledge(BUTTON0);
+    u8mode=1;
+    LCDCommand(LCD_CLEAR_CMD);
+    UserApp_CursorPosition = LINE1_START_ADDR+3;
+    LCDMessage(LINE1_START_ADDR+3,"Zhang tiankuan");
+    bflag1=FALSE;
+    bflag2=FALSE;
+    
+  }
+  
+  if(u8mode==1)
+  {
+    if(WasButtonPressed(BUTTON0)&(bflag1==FALSE))
+    {
+      u8counter1++;
+      u8counter2=4;
+      ButtonAcknowledge(BUTTON0);
+      if(UserApp_CursorPosition == LINE1_END_ADDR)
+      {
+        UserApp_CursorPosition = LINE2_START_ADDR; 
+      } 
+      if(UserApp_CursorPosition+13 == LINE2_END_ADDR)
+      {
+        UserApp_CursorPosition=LINE2_END_ADDR-13;
+      }
+      else
+      {
+        UserApp_CursorPosition++;
+      }
+      LCDCommand(LCD_CLEAR_CMD);
+      LCDMessage(UserApp_CursorPosition,"Zhang tiankuan");
+      LCDMessage(UserApp_CursorPosition+20,"Zhang tiankuan");
+    }
+    
+    if(WasButtonPressed(BUTTON1)&(bflag2==FALSE))
+    {
+      u8counter2--;
+      u8counter1=0;
+      ButtonAcknowledge(BUTTON1);
+      if(UserApp_CursorPosition == LINE2_START_ADDR)
+      {
+        UserApp_CursorPosition = LINE1_END_ADDR;
+      } 
+      if(UserApp_CursorPosition==LINE1_START_ADDR)
+      {
+        UserApp_CursorPosition=LINE1_START_ADDR;
+      }
+      else
+      {
+        UserApp_CursorPosition--;
+      }
+      LCDCommand(LCD_CLEAR_CMD);
+      LCDMessage(UserApp_CursorPosition,"Zhang tiankuan");
+      LCDMessage(UserApp_CursorPosition+20,"Zhang tiankuan");
+    }
+    
+    if((UserApp_CursorPosition==LINE1_START_ADDR)||(UserApp_CursorPosition+13==LINE2_END_ADDR))
+    {
+       u8counter2=4;
+       u8counter1=0;
+       LedOn(RED);
+       LedOff(WHITE);
+       LedOff(PURPLE);
+       LedOff(BLUE);
+       PWMAudioSetFrequency(BUZZER2,500);
+       PWMAudioOn(BUZZER2);
+    }
+    
+    else
+    {
+      PWMAudioOff(BUZZER2);
+    }
+    
+    if((u8counter1==1)||(u8counter2==1))
+    {
+      LedOn(WHITE);
+      LedOff(PURPLE);
+      LedOff(BLUE); 
+      LedOff(RED);
+      PWMAudioSetFrequency(BUZZER2,C3);
+      PWMAudioOn(BUZZER2);
+    }
+    
+    if((u8counter1==2)||(u8counter2==2))
+    {
+      LedOff(WHITE);
+      LedOn(PURPLE);
+      LedOff(BLUE);
+      LedOff(RED);
+      PWMAudioSetFrequency(BUZZER2,D3);
+      PWMAudioOn(BUZZER2);
+      
+    }
+    
+    if((u8counter1==3)||(u8counter2==3))
+    {
+      LedOff(WHITE);
+      LedOff(PURPLE);
+      LedOn(BLUE);  
+      LedOff(RED);
+      PWMAudioSetFrequency(BUZZER2,E3);
+      PWMAudioOn(BUZZER2);
+    }
+    
+    if(u8counter1==4)
+    {
+      u8counter1=1;
+    }
+    
+    if(u8counter2==0)
+    {
+      u8counter2=3;
+    }
+  }
+  
+  //**************second mode---debug LCD
+  if(WasButtonPressed(BUTTON1)&(bflag2==TRUE))
+  {
+    ButtonAcknowledge(BUTTON1);
+    LCDCommand(LCD_CLEAR_CMD);    
+    UserApp_CursorPosition=LINE1_START_ADDR;
+    u8mode=2;
+    bflag2=FALSE;
+    bflag1=FALSE;
+  }
+  
+  if(u8mode==2)
+  {
+    if(G_u8DebugScanfCharCount!=0)
+    {
+      DebugScanf(u16Message1);
+      u16Message2[u8index1]=u16Message1[0];
+      u8index1++;
+      
+      if(UserApp_CursorPosition!=LINE2_END_ADDR+1)
+      {
+        LCDMessage(UserApp_CursorPosition,u16Message1);
+        LCDMessage(UserApp_CursorPosition+20,u16Message1);
+        UserApp_CursorPosition++;
+      }
+      
+      else if((bflag3==TRUE)&(UserApp_CursorPosition==LINE2_END_ADDR+1))
+      {
+        u8index3=0;
+        for(u8index2=u8index1-40;u8index2<=u8index1-1;u8index2++)
+        {
+          u16Message3[u8index3++]=u16Message2[u8index2];
+        }
+        
+        LCDMessage(LINE1_START_ADDR,u16Message3);
+        LCDMessage(LINE1_START_ADDR+20,u16Message3);
+      }
+      
+      else if((bflag3==FALSE)&(UserApp_CursorPosition==LINE2_END_ADDR+1))
+      {
+        u8index3=0;
+        for(u8index2=u8index1-20;u8index2<=u8index1-1;u8index2++)
+        {
+          u16Message3[u8index3++]=u16Message2[u8index2];
+        }
+        
+        LCDMessage(LINE2_START_ADDR,u16Message3);
+      }
+      
+      if(u16Message1[0]==0x0d)
+      {
+        UserApp_CursorPosition=LINE2_START_ADDR;
+        bflag3=FALSE;
+      }
+      
+      if(UserApp_CursorPosition == LINE1_END_ADDR)
+      {
+        UserApp_CursorPosition = LINE2_START_ADDR; 
+      } 
+      
+    }
+  }
+  //***********third mode---return to main menu
+  if(WasButtonPressed(BUTTON2))
+  {
+    ButtonAcknowledge(BUTTON2);
+    LCDCommand(LCD_CLEAR_CMD);
+    LCDMessage(LINE1_START_ADDR,"Please Press:");
+    LCDMessage(LINE2_START_ADDR,"B0   B1   B2");
+    u8mode=0;
+    bflag1=TRUE;
+    bflag2=TRUE; 
+    bflag3=TRUE;
+    LedOff(WHITE);
+    LedOff(PURPLE);
+    LedOff(BLUE); 
+    LedOff(RED); 
+    PWMAudioOff(BUZZER2);
+  }  
 } /* end UserApp1SM_Idle() */
     
 
