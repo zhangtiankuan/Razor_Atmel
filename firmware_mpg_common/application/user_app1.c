@@ -168,8 +168,9 @@ static void UserApp1SM_Idle(void)
     DebugScanf(u8Message1);
     u16Message2[u8index1]=u8Message1[0];
     u8index1++;
-
-    if(u16Message2[0]=='1')//input commands
+    
+   /*****input commands****/
+    if(u16Message2[0]=='1')
     {
       if(bstate)
       {
@@ -190,8 +191,8 @@ static void UserApp1SM_Idle(void)
         bstate=FALSE;
       }
     }
-    
-    if(u16Message2[0]=='2')//current USER program
+    /******current USER program*********/
+    if(u16Message2[0]=='2')
     {
         DebugLineFeed();
         DebugLineFeed();
@@ -216,7 +217,8 @@ static void UserApp1SM_Idle(void)
     
     if(u8state==2)
     {
-        if(u16Message2[1]==0x0d)//IF USER press 'enter',they will return to the main menu
+      /******IF USER press 'enter',they will return to the main menu*******/
+        if(u16Message2[1]==0x0d)
         {
           u8index1=0;
           u8state=0;
@@ -228,14 +230,16 @@ static void UserApp1SM_Idle(void)
           DebugLineFeed();
         }
     }
-
-    if(u16Message2[u8index1-1]==0x0d)//determine whether the command is fully entered
+    
+    /***********determine whether the command is fully entered*****/
+    if(u16Message2[u8index1-1]==0x0d)
     {
           u8state=1;
           DebugLineFeed();
     }
- 
-    if(u8state==1)//determine if the command is correct
+    
+    /*********determine if the command is correct*******/
+    if(u8state==1)
     {
         for(u8index2=0;u8index2<8;u8index2++)
         {
@@ -363,7 +367,8 @@ static void UserApp1SM_Idle(void)
         u8state=0;
         bflag1,bflag2,bflag3,bflag4,bflag5=FALSE;
         
-        if(u16Message2[1]==0x0d)//If the user does not have an input command,press 'enter' to enter the main menu 
+        /*******If the user does not have an input command,press 'enter' to enter the main menu********/
+        if(u16Message2[1]==0x0d) 
         { 
           for(u8index2=0;u8index2<u8index4;u8index2++)
           {
@@ -383,7 +388,6 @@ static void UserApp1SM_Idle(void)
         }
     }
   }
-  
 } /* end UserApp1SM_Idle() */
                       
             
