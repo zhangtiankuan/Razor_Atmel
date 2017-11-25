@@ -90,7 +90,7 @@ void UserApp1Initialize(void)
   //u8 au8UserApp1Start1[] = "LED program task started\n\r";
   
   /* Turn off the Debug task command processor and announce the task is ready */
-  //DebugSetPassthrough();
+  DebugSetPassthrough();
   //DebugPrintf(au8UserApp1Start1);
     /* If good initialization, set state to Idle */
   if( 1 )
@@ -231,6 +231,11 @@ static void UserApp1SM_Idle(void)
         }
     }
     
+    if(u8Message1[0]==0X08)
+    {
+      u8index1=u8index1-2;
+    }    
+    
     /***********determine whether the command is fully entered*****/
     if(u16Message2[u8index1-1]==0x0d)
     {
@@ -265,7 +270,7 @@ static void UserApp1SM_Idle(void)
             if(u16Message2[u8index2]=='-')
             {
               u8position=u8index2;//record the second'-' position
-              u8digit1=u8position-3;//record the first time's digit
+              u8digit1=u8position-3;//record ontime's digit
             }
           }
 
@@ -285,7 +290,7 @@ static void UserApp1SM_Idle(void)
         
         if(bflag3)
         {
-          u8digit2=u8index1-u8position-2;//record the second time's digit
+          u8digit2=u8index1-u8position-2;//record offtime's digit
           for(u8index2=u8position+1;u8index2<u8index1-1;u8index2++)
           {
             if((u16Message2[u8index2]<=57)&&(u16Message2[u8index2]>=48))
