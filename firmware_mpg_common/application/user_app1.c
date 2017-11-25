@@ -203,7 +203,8 @@ static void UserApp1SM_Idle(void)
         DebugPrintf("-----------------------");
         DebugLineFeed();
         u8state=2;
-          
+        u8counter2=1;
+        
         for(u8index2=0;u8index2<u8counter;u8index2++)
         {
           LedDisplayPrintListLine(u8index2);
@@ -370,7 +371,11 @@ static void UserApp1SM_Idle(void)
         u32offtime=0;
         u8index1=1;
         u8state=0;
-        bflag1,bflag2,bflag3,bflag4,bflag5=FALSE;
+        bflag1=FALSE;
+        bflag2=FALSE;
+        bflag3=FALSE;
+        bflag4=FALSE;
+        bflag5=FALSE;
         
         /*******If the user does not have an input command,press 'enter' to enter the main menu********/
         if(u16Message2[1]==0x0d) 
