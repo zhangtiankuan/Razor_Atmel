@@ -87,7 +87,14 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+  LedOff(WHITE);
+  LedOff(PURPLE);
+  LedOff(BLUE);  
+  LedOff(RED);
+  LedOff(CYAN);
+  LedOff(ORANGE);
+  LedOff(GREEN);
+  LedOff(YELLOW);
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -136,7 +143,97 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-
+  extern u8 G_au8DebugScanfBuffer[];
+  extern u8 G_u8DebugScanfCharCount;
+  static u8 u8index = 0;
+  static u16 u16counter = 0;
+  static u8 u8NumCharsMessage1[100];
+  static u8 u8NumCharsMessage2[100];
+  static bool bflag=FALSE;
+  static u8 u8state1[100]="Entering state 1";
+  static u8 u8state2[100]="Entering state 2";
+  
+  if(G_u8DebugScanfCharCount!=0)
+  {
+    DebugScanf(u8NumCharsMessage1);
+    u8NumCharsMessage2[u8index]=u8NumCharsMessage1[0];
+    u8index++;
+  } 
+/**************state 1*************/  
+  if((WasButtonPressed(BUTTON1))||(u8NumCharsMessage2[u8index-2]=='1'&&u8NumCharsMessage2[u8index-1]==0x0d))
+  {
+    bflag=FALSE;
+    ButtonAcknowledge(BUTTON1);
+    u8index=0;
+    u16counter=0;   
+    DebugPrintf(u8state1);
+    DebugLineFeed();
+    LCDCommand(LCD_CLEAR_CMD);
+    LCDMessage(LINE1_START_ADDR,"STATE 1");
+    
+    LedOff(GREEN);
+    LedOff(YELLOW);
+    LedOff(ORANGE);
+    LedOff(RED);
+    LedOn(WHITE);
+    LedOn(PURPLE);
+    LedOn(BLUE);
+    LedOn(CYAN);
+    
+    LedOn(LCD_RED);									   
+    LedOff(LCD_GREEN);
+    LedOn(LCD_BLUE);//LCD BACKLIGHT:purple
+    
+    PWMAudioOff(BUZZER1);
+   }
+/**************state 2*****************/ 
+  if((WasButtonPressed(BUTTON2))||((u8NumCharsMessage2[u8index-2]=='2')&&(u8NumCharsMessage2[u8index-1]==0x0d)))
+  {
+    bflag=TRUE;
+    ButtonAcknowledge(BUTTON2);
+    u8index=0;
+    DebugPrintf(u8state2);
+    DebugLineFeed();
+    LCDCommand(LCD_CLEAR_CMD);
+    LCDMessage(LINE1_START_ADDR,"STATE 2");
+    
+    LedBlink(GREEN,LED_1HZ);
+    LedBlink(YELLOW,LED_2HZ);
+    LedBlink(ORANGE,LED_4HZ);
+    LedBlink(RED,LED_8HZ);
+    
+    LedOff(WHITE);
+    LedOff(PURPLE);
+    LedOff(BLUE);
+    LedOff(CYAN);
+    
+    LedPWM(LCD_RED,LED_PWM_100);									   
+    LedPWM(LCD_GREEN,LED_PWM_50);
+    LedOff(LCD_BLUE);//LCD BACKLIGHT:orange
+    
+    PWMAudioSetFrequency(BUZZER1,200);
+  }
+  
+  if(bflag)//BUZZER:100MS 200HZ tone every second
+   {
+    u16counter++;
+    if(u16counter<=100)
+    {
+      PWMAudioOn(BUZZER1);
+    }
+    
+    else if(u16counter<1000)
+    {
+      PWMAudioOff(BUZZER1);
+    }
+    
+    else if(u16counter=1000)
+    {
+      u16counter=0;
+    }
+   
+  }
+  
 } /* end UserApp1SM_Idle() */
     
 
