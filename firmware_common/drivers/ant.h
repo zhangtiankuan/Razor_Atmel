@@ -192,8 +192,8 @@ typedef struct
 /* Default Channel ID parameters */
 //#define	ANT_SERIAL_LO_DEFAULT			        (u8)0x00
 //#define ANT_SERIAL_HI_DEFAULT			        (u8)0x20
-#define	ANT_DEVICE_ID_LO_DEFAULT		      (u8)0x00
-#define ANT_DEVICE_ID_HI_DEFAULT			    (u8)0x20
+#define	ANT_DEVICE_ID_LO_DEFAULT		      (u8)0x22
+#define ANT_DEVICE_ID_HI_DEFAULT			    (u8)0x13
 #define	ANT_DEVICE_TYPE_DEFAULT					  (u8)0x01
 #define	ANT_TRANSMISSION_TYPE_DEFAULT		  (u8)0x01
 
