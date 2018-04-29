@@ -298,19 +298,19 @@ static void UserApp1SM_Idle(void)
   if(WasButtonPressed(BUTTON0))
   {
     AllLedOff();
-    LCDCommand(LCD_CLEAR_CMD);
-    LCDMessage(LINE1_START_ADDR, "hide");
+
     ButtonAcknowledge(BUTTON0);
     UserApp1_u32Timeout = G_u32SystemTime1ms;
+    AntOpenChannelNumber(ANT_CHANNEL_0);
+    AntOpenChannelNumber(ANT_CHANNEL_1);
+    AntOpenChannelNumber(ANT_CHANNEL_2);
     UserApp1_StateMachine = UserApp1SM_OpenChannel;
   }
 } /* end UserApp1SM_Idle() */
 
 static void UserApp1SM_OpenChannel(void)
 {
-  AntOpenChannelNumber(ANT_CHANNEL_0);
-  AntOpenChannelNumber(ANT_CHANNEL_1);
-  AntOpenChannelNumber(ANT_CHANNEL_2);
+
   if((AntRadioStatusChannel(ANT_CHANNEL_0) == ANT_OPEN)&&
      (AntRadioStatusChannel(ANT_CHANNEL_1) == ANT_OPEN)&&
      (AntRadioStatusChannel(ANT_CHANNEL_2) == ANT_OPEN))
@@ -332,6 +332,7 @@ static void UserApp1SM_RadioActive_master_initialize(void)
 {
   if(bmaster_initialize)
   {
+    au8message[0] = 0;
     AllLedOff();
     LCDCommand(LCD_CLEAR_CMD);
     LCDMessage(LINE1_START_ADDR, "hide");
@@ -347,6 +348,7 @@ static void UserApp1SM_RadioActive_slave_initialize(void)
 {
   if(bslave_initialize)
   {
+    au8message[0] = 0;
     AllLedOff();
     LCDCommand(LCD_CLEAR_CMD);
     LCDMessage(LINE1_START_ADDR,"seek");
