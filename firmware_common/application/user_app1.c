@@ -136,6 +136,30 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
+  static u16 u16counter = 0;
+  u32 u32button = AT91C_BASE_PIOA->PIO_PDSR&PA_13_BLADE_MISO;
+  if(u32button==0)
+  {
+    u16counter++;
+    if(u16counter<1000)
+    {
+      AT91C_BASE_PIOA->PIO_CODR  = 0x00004000;
+      AT91C_BASE_PIOA->PIO_SODR = PA_15_BLADE_SCK;
+    }
+    if((u16counter>=1000)&(u16counter<2000))
+    {
+      AT91C_BASE_PIOA->PIO_CODR  = 0x00008000;
+      AT91C_BASE_PIOA->PIO_SODR = PA_14_BLADE_MOSI;
+    }
+    if(u16counter==2000)
+    {
+      u16counter=0;
+    }
+  }
+  else
+  {
+    AT91C_BASE_PIOA->PIO_CODR  = 0x0000C000;
+  }
 
 } /* end UserApp1SM_Idle() */
     
