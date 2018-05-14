@@ -19,6 +19,16 @@ Header file for user_app1.c
 
 #ifndef __USER_APP1_H
 #define __USER_APP1_H
+#define ANT_CHANNEL_TYPE_USERAPP        CHANNEL_TYPE_SLAVE    /* ANT SLAVE */
+#define ANT_DEVICEID_LO_USERAPP         (u8)0x22               /* Low byte of two-byte Device # */
+#define ANT_DEVICEID_HI_USERAPP         (u8)0x13                /* High byte of two-byte Device # */
+#define ANT_DEVICE_TYPE_USERAPP         (u16)120                 /* 1 - 255 */
+#define ANT_TRANSMISSION_TYPE_USERAPP   (u8)0x0                /* 1-127 (MSB is pairing bit) */
+#define ANT_CHANNEL_PERIOD_LO_USERAPP   (u8)0x86              /* Low byte of two-byte channel period 0x0001 - 0x7fff */
+#define ANT_CHANNEL_PERIOD_HI_USERAPP   (u8)0x1F             /* High byte of two-byte channel period */
+#define ANT_FREQUENCY_USERAPP           (u8)57                /* 2400MHz + this number 0 - 99 */
+#define ANT_TX_POWER_USERAPP            RADIO_TX_POWER_4DBM   /* RADIO_TX_POWER_0DBM, RADIO_TX_POWER_MINUS5DBM, RADIO_TX_POWER_MINUS10DBM, RADIO_TX_POWER_MINUS20DBM */
+
 
 /**********************************************************************************************************************
 Type Definitions
@@ -55,9 +65,12 @@ void UserApp1RunActiveState(void);
 State Machine Declarations
 ***********************************************************************************************************************/
 static void UserApp1SM_Idle(void);    
-
+static void UserApp1SM_OpenChannel(void);
+static void UserApp1SM_CloseChannel(void);
+static void UserApp1SM_RadioActive(void);
+static void UserApp1SM_WaitChannelAssign(void);
 static void UserApp1SM_Error(void);         
-
+static void AllLedOff(void);
 
 #endif /* __USER_APP1_H */
 
