@@ -86,7 +86,7 @@ Promises:
 void UserApp1Initialize(void)
 {
   LCDCommand(LCD_CLEAR_CMD);
-  LCDMessage(LINE1_START_ADDR,"heart rate detector");
+  LCDMessage(LINE1_START_ADDR,"Heart Rate Detector");
   LCDMessage(LINE2_START_ADDR,"Press B0 to start");
   AntAssignChannelInfoType sAntSetupData;
   
@@ -203,22 +203,27 @@ static void UserApp1SM_OpenChannel(void)
 
 static void UserApp1SM_RadioActive(void)
 {
+  
+  extern u8 G_au8DebugScanfBuffer[];
+  extern u8 G_u8DebugScanfCharCount;
   static u8 u8mode;
+  static u8 u8index = 0;
   
   static u8 u8heartrate;
   static u8 u8heart_rate[] = "0";
   static u8 u8heart_rate_LCD[] = "000";
   
-  static u8 u8Average_heartrate;
-  static u8 u8Average_heart_rate[] = "0";
-  static u8 u8Average_heart_rate_LCD[] = "000";
+  static u8 u8heartbeatcount;
+  static u8 u8heartbeat_count[] = "0";
+  static u8 u8heartbeat_count_LCD[] = "000";
+  static u8 u8heartbeatmessage1[100] = "0";
+  static u8 u8heartbeatmessage2[100];  
   
   static u8 u8battery;
   static u8 u8Battery[] = "0";
   static u8 u8Battery_LCD[] = "000";
-  
-  static u8 u8message1[]={0x46,0xff,0xff,0xff,0xff,0x80,0x05,0x01};
-  static u8 u8message2[]={0x46,0xff,0xff,0xff,0xff,0x80,0x07,0x01};
+
+  static u8 u8message[]={0x46,0xff,0xff,0xff,0xff,0x80,0x07,0x01};
   if(WasButtonPressed(BUTTON0))
   {
     ButtonAcknowledge(BUTTON0);
@@ -238,14 +243,36 @@ static void UserApp1SM_RadioActive(void)
     ButtonAcknowledge(BUTTON2);
     u8mode=2;
     AllLedOff();
-    AntQueueAcknowledgedMessage(ANT_CHANNEL_0,u8message1);
   }
   if(WasButtonPressed(BUTTON3))
   {
     ButtonAcknowledge(BUTTON3);
     u8mode=3;
     AllLedOff();
-    AntQueueAcknowledgedMessage(ANT_CHANNEL_0,u8message2);
+    AntQueueAcknowledgedMessage(ANT_CHANNEL_0,u8message);
+  }
+  if(G_u8DebugScanfCharCount!=0)
+  {
+    DebugScanf(u8heartbeatmessage1);
+    if(u8heartbeatmessage1[0]!=0)
+    {
+      u8heartbeatmessage2[u8index] = u8heartbeatmessage1[0];
+      u8index++;
+      if(u8index>=20)
+      {
+        for(u8 u8i=u8index-20;u8i<u8index;u8i++)
+        {
+          if(u8heartbeatmessage2[u8i]==u8heartbeatmessage2[u8i+1])
+          {
+            DebugLineFeed();
+            DebugPrintf("Danger! Heart stopped");
+            LCDCommand(LCD_CLEAR_CMD);
+            LCDMessage(LINE1_START_ADDR,"Danger!");
+            LCDMessage(LINE2_START_ADDR,"Heart stopped");                
+          }
+        }
+      }
+    }
   }
   if( AntReadAppMessageBuffer())
   {
@@ -260,29 +287,42 @@ static void UserApp1SM_RadioActive(void)
           u8heart_rate_LCD[2] = u8heartrate%10+48;
           u8heart_rate_LCD[1] = (u8heartrate/10)%10+48;
           u8heart_rate_LCD[0] = u8heartrate/100+48;
-          LedOn(PURPLE); 
+          
           LCDCommand(LCD_CLEAR_CMD);
-          LCDMessage(LINE1_START_ADDR,"Now heartrate:");
+          LCDMessage(LINE1_START_ADDR,"Heart Rate:");
           LCDMessage(LINE1_START_ADDR+17,u8heart_rate_LCD);
-          LCDMessage(LINE2_START_ADDR,"Press B0 to return");
+          
+          if(u8heartrate<=150&u8heartrate>=60)
+          {
+            AllLedOff();
+            LedOn(PURPLE);
+            LCDClearChars(LINE2_START_ADDR, 20);
+            LCDMessage(LINE2_START_ADDR,"Normal     B0:return");
+          }
+          else
+          {
+            AllLedOff();
+            LedOn(RED);
+            LCDClearChars(LINE2_START_ADDR, 20);
+            LCDMessage(LINE2_START_ADDR,"Abnormal   B0:return");
+          }
         }
         
         if(u8mode==2)
         {
-          if(G_au8AntApiCurrentMessageBytes[0]==0x05)
-          {
-            u8Average_heart_rate[1] = G_au8AntApiCurrentMessageBytes[1]%0x10;
-            u8Average_heart_rate[0] = G_au8AntApiCurrentMessageBytes[1]/0x10;
-            u8Average_heartrate = u8Average_heart_rate[0]*16+u8Average_heart_rate[1];
-            u8Average_heart_rate_LCD[2] = u8Average_heartrate%10+48;
-            u8Average_heart_rate_LCD[1] = (u8Average_heartrate/10)%10+48;
-            u8Average_heart_rate_LCD[0] = u8Average_heartrate/100+48;
-            LedOn(BLUE);  
-            LCDCommand(LCD_CLEAR_CMD);
-            LCDMessage(LINE1_START_ADDR,"Ave heartrate:");
-            LCDMessage(LINE1_START_ADDR+17,u8Average_heart_rate_LCD);  
-            LCDMessage(LINE2_START_ADDR,"Press B0 to return");
-          }
+          u8heartbeat_count[1] = G_au8AntApiCurrentMessageBytes[6]%0x10;
+          u8heartbeat_count[0] = G_au8AntApiCurrentMessageBytes[6]/0x10;
+          u8heartbeatcount = u8heartbeat_count[0]*16+u8heartbeat_count[1];
+          u8heartbeat_count_LCD[2] = u8heartbeatcount%10+48;
+          u8heartbeat_count_LCD[1] = (u8heartbeatcount/10)%10+48;
+          u8heartbeat_count_LCD[0] = u8heartbeatcount/100+48;
+          LedOn(BLUE);
+          LCDCommand(LCD_CLEAR_CMD);
+          LCDMessage(LINE1_START_ADDR,"Heart Beat Count:");
+          LCDMessage(LINE1_START_ADDR+17,u8heartbeat_count_LCD);  
+          LCDMessage(LINE2_START_ADDR,"Press B0 to return");      
+          
+          u8heartbeatmessage1[0] = u8heartbeatcount;
         }
         
         if(u8mode==3)

@@ -20,8 +20,8 @@ Header file for user_app1.c
 #ifndef __USER_APP1_H
 #define __USER_APP1_H
 #define ANT_CHANNEL_TYPE_USERAPP        CHANNEL_TYPE_SLAVE    /* ANT SLAVE */
-#define ANT_DEVICEID_LO_USERAPP         (u8)0x22               /* Low byte of two-byte Device # */
-#define ANT_DEVICEID_HI_USERAPP         (u8)0x13                /* High byte of two-byte Device # */
+#define ANT_DEVICEID_LO_USERAPP         (u8)0x44               /* Low byte of two-byte Device # */
+#define ANT_DEVICEID_HI_USERAPP         (u8)0x11                /* High byte of two-byte Device # */
 #define ANT_DEVICE_TYPE_USERAPP         (u16)120                 /* 1 - 255 */
 #define ANT_TRANSMISSION_TYPE_USERAPP   (u8)0x0                /* 1-127 (MSB is pairing bit) */
 #define ANT_CHANNEL_PERIOD_LO_USERAPP   (u8)0x86              /* Low byte of two-byte channel period 0x0001 - 0x7fff */
