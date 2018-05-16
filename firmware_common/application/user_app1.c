@@ -111,19 +111,11 @@ void UserApp1Initialize(void)
   sAntSetupData.AntNetworkKey[5] = 0x72;
   sAntSetupData.AntNetworkKey[6] = 0xC3;
   sAntSetupData.AntNetworkKey[7] = 0x45;
-  if( AntAssignChannel(&sAntSetupData) )
-  {
-    /* Channel assignment is queued so start timer */
-    UserApp1_u32Timeout = G_u32SystemTime1ms;
-    UserApp1_StateMachine = UserApp1SM_WaitChannelAssign;
-  }
-  else
-  {
-    /* The task isn't properly initialized, so shut it down and don't run */
-    LedBlink(RED, LED_4HZ);
-    UserApp1_StateMachine = UserApp1SM_Error;
-  }
-} /* end UserApp1Initialize() */
+  
+  AntAssignChannel(&sAntSetupData);
+  UserApp1_u32Timeout = G_u32SystemTime1ms;
+  UserApp1_StateMachine = UserApp1SM_WaitChannelAssign;
+}/*end UserApp1Initialize()*/
 
 static void UserApp1SM_WaitChannelAssign(void)
 {
@@ -182,11 +174,11 @@ static void UserApp1SM_Idle(void)
   {
     ButtonAcknowledge(BUTTON0);
     LedOff(YELLOW); 
-    LedOn(GREEN);
+    LedOn(WHITE);
     UserApp1_u32Timeout = G_u32SystemTime1ms;
     AntOpenChannelNumber(ANT_CHANNEL_0);
     LCDCommand(LCD_CLEAR_CMD);
-    LCDMessage(LINE1_START_ADDR,"B0:CLOSE");
+    LCDMessage(LINE1_START_ADDR,"B0:return");
     LCDMessage(LINE2_START_ADDR,"B1  B2  B3");
     UserApp1_StateMachine = UserApp1SM_OpenChannel;
   }
@@ -212,9 +204,19 @@ static void UserApp1SM_OpenChannel(void)
 static void UserApp1SM_RadioActive(void)
 {
   static u8 u8mode;
+  
   static u8 u8heartrate;
   static u8 u8heart_rate[] = "0";
   static u8 u8heart_rate_LCD[] = "000";
+  
+  static u8 u8Average_heartrate;
+  static u8 u8Average_heart_rate[] = "0";
+  static u8 u8Average_heart_rate_LCD[] = "000";
+  
+  static u8 u8battery;
+  static u8 u8Battery[] = "0";
+  static u8 u8Battery_LCD[] = "000";
+  
   static u8 u8message1[]={0x46,0xff,0xff,0xff,0xff,0x80,0x05,0x01};
   static u8 u8message2[]={0x46,0xff,0xff,0xff,0xff,0x80,0x07,0x01};
   if(WasButtonPressed(BUTTON0))
@@ -229,17 +231,20 @@ static void UserApp1SM_RadioActive(void)
   {
     ButtonAcknowledge(BUTTON1);
     u8mode=1;
+    AllLedOff();
   }
   if(WasButtonPressed(BUTTON2))
   {
     ButtonAcknowledge(BUTTON2);
     u8mode=2;
+    AllLedOff();
     AntQueueAcknowledgedMessage(ANT_CHANNEL_0,u8message1);
   }
   if(WasButtonPressed(BUTTON3))
   {
     ButtonAcknowledge(BUTTON3);
     u8mode=3;
+    AllLedOff();
     AntQueueAcknowledgedMessage(ANT_CHANNEL_0,u8message2);
   }
   if( AntReadAppMessageBuffer())
@@ -255,21 +260,50 @@ static void UserApp1SM_RadioActive(void)
           u8heart_rate_LCD[2] = u8heartrate%10+48;
           u8heart_rate_LCD[1] = (u8heartrate/10)%10+48;
           u8heart_rate_LCD[0] = u8heartrate/100+48;
-          LedBlink(GREEN,LED_4HZ);  
+          LedOn(PURPLE); 
           LCDCommand(LCD_CLEAR_CMD);
           LCDMessage(LINE1_START_ADDR,"Now heartrate:");
           LCDMessage(LINE1_START_ADDR+17,u8heart_rate_LCD);
-
+          LCDMessage(LINE2_START_ADDR,"Press B0 to return");
         }
         
         if(u8mode==2)
         {
-          
+          if(G_au8AntApiCurrentMessageBytes[0]==0x05)
+          {
+            u8Average_heart_rate[1] = G_au8AntApiCurrentMessageBytes[1]%0x10;
+            u8Average_heart_rate[0] = G_au8AntApiCurrentMessageBytes[1]/0x10;
+            u8Average_heartrate = u8Average_heart_rate[0]*16+u8Average_heart_rate[1];
+            u8Average_heart_rate_LCD[2] = u8Average_heartrate%10+48;
+            u8Average_heart_rate_LCD[1] = (u8Average_heartrate/10)%10+48;
+            u8Average_heart_rate_LCD[0] = u8Average_heartrate/100+48;
+            LedOn(BLUE);  
+            LCDCommand(LCD_CLEAR_CMD);
+            LCDMessage(LINE1_START_ADDR,"Ave heartrate:");
+            LCDMessage(LINE1_START_ADDR+17,u8Average_heart_rate_LCD);  
+            LCDMessage(LINE2_START_ADDR,"Press B0 to return");
+          }
         }
         
+        if(u8mode==3)
+        {
+          if(G_au8AntApiCurrentMessageBytes[0]==0x07)
+          {
+            u8Battery[1] = G_au8AntApiCurrentMessageBytes[1]%0x10;
+            u8Battery[0] = G_au8AntApiCurrentMessageBytes[1]/0x10;
+            u8battery = u8Battery[0]*16+u8Battery[1];
+            u8Battery_LCD[3] ='%';
+            u8Battery_LCD[2] = u8battery%10+48;
+            u8Battery_LCD[1] = (u8battery/10)%10+48;
+            u8Battery_LCD[0] = u8battery/100+48;
+            LedOn(ORANGE);  
+            LCDCommand(LCD_CLEAR_CMD);
+            LCDMessage(LINE1_START_ADDR,"Battery:");
+            LCDMessage(LINE1_START_ADDR+16,u8Battery_LCD);    
+            LCDMessage(LINE2_START_ADDR,"Press B0 to return");
+          }
+        }
      }
-
-    
   }
 }/*end UserApp1SM_RadioActive()*/
 
