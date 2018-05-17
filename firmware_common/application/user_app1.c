@@ -251,7 +251,7 @@ static void UserApp1SM_RadioActive(void)
     AllLedOff();
     AntQueueAcknowledgedMessage(ANT_CHANNEL_0,u8message);
   }
-  if(G_u8DebugScanfCharCount!=0)
+  if(G_u8DebugScanfCharCount>0)
   {
     DebugScanf(u8heartbeatmessage1);
     if(u8heartbeatmessage1[0]!=0)
